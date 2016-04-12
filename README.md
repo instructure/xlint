@@ -2,6 +2,7 @@
 
 [![Gem Version](https://badge.fury.io/rb/xlint.svg)](https://badge.fury.io/rb/xlint)
 [![Build Status](https://travis-ci.org/mobile-qa/xlint.svg?branch=master)](https://travis-ci.org/mobile-qa/xlint)
+[![Code Climate](https://codeclimate.com/github/mobile-qa/xlint/badges/gpa.svg)](https://codeclimate.com/github/mobile-qa/xlint)
 [![Coverage Status](https://coveralls.io/repos/github/mobile-qa/xlint/badge.svg?branch=master)](https://coveralls.io/github/mobile-qa/xlint?branch=master)
 [![Dependency Status](https://gemnasium.com/badges/github.com/mobile-qa/xlint.svg)](https://gemnasium.com/github.com/mobile-qa/xlint)
 
