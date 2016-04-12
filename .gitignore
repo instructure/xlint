@@ -8,8 +8,5 @@ pkg
 Gemfile.lock
 *.gz
 
-# yml files
-*.yml
-
 # rdoc
 **doc
