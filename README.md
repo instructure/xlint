@@ -1,5 +1,7 @@
 # Xlint
 
+[![Build Status](https://travis-ci.org/mobile-qa/xlint.svg?branch=master)](https://travis-ci.org/mobile-qa/xlint)
+
 Xlint is command-line tool for linting XCode project files and posting
 comments on a [Gerrit](https://www.gerritcodereview.com/) review from a
 CI environment. We developed this gem because its really easy to change
