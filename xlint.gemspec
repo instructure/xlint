@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'git_diff_parser', '~> 2.2', '>= 2.2.0'
   spec.add_dependency 'json', '~> 1.8.3', '>= 1.8.3'
   spec.add_dependency 'octokit', '~> 4.3', '>= 4.3.0'
-  spec.add_dependency 'gergich', '~> 0.0.3', '>= 0.0.3'
+  spec.add_dependency 'gergich', '~> 0.1.0', '>= 0.1.0'
 
   spec.add_development_dependency 'bundler', '~> 1.11', '>= 1.11.0'
   spec.add_development_dependency 'byebug', '~> 8.2.2', '>= 8.2.2'
