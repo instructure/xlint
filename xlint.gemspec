@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.summary       = 'Command-line tool for linting Xcode project files.'
   spec.description   = 'Checks for deployment target changes in Xcode project files.'
   spec.license       = 'Apache-2.0'
-  spec.homepage      = 'https://www.instructure.com'
+  spec.homepage      = 'https://github.com/mobile-qa/xlint'
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
