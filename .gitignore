@@ -1,0 +1,15 @@
+# rubymine files
+.idea
+coverage
+
+# gem files
+pkg
+*.gem
+Gemfile.lock
+*.gz
+
+# yml files
+*.yml
+
+# rdoc
+**doc
