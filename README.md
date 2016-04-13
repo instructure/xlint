@@ -1,6 +1,6 @@
 # Xlint
 
-[![Gem Version](https://badge.fury.io/rb/xlint.svg)](https://badge.fury.io/rb/xlint)
+[![Gem Version](https://badge.fury.io/rb/xlint.svg)](https://rubygems.org/gems/xlint)
 [![Build Status](https://travis-ci.org/mobile-qa/xlint.svg?branch=master)](https://travis-ci.org/mobile-qa/xlint)
 [![Code Climate](https://codeclimate.com/github/mobile-qa/xlint/badges/gpa.svg)](https://codeclimate.com/github/mobile-qa/xlint)
 [![Coverage Status](https://coveralls.io/repos/github/mobile-qa/xlint/badge.svg?branch=master)](https://coveralls.io/github/mobile-qa/xlint?branch=master)
@@ -27,9 +27,11 @@ Xcode .pbxproj files.
 
 ## Installation
 
-Gergich and Gerrit must be configured as defined in the Gergich gem. If
-Gergich works, then all you need to do is `gem install xlint` and Xlint
+[Gergich][gergich] and Gerrit must be configured as defined in the Gergich gem. If
+[Gergich][gergich] works, then all you need to do is `gem install xlint` and Xlint
 is ready for linting.
+
+[gergich]: https://github.com/instructure/gergich
 
 ## Usage
 
