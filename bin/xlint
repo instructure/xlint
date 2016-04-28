@@ -16,6 +16,6 @@ diff.files.each do |file|
 end
 
 unless comments.empty?
-  `gergich comment #{Shellwords.escape(comments.to_json)}`
+  raise RunTimeError, 'gergich comment comment failed!' unless system("gergich comment #{Shellwords.escape(comments.to_json)}")
   raise RuntimeError, 'gergich publish command failed!' unless system('gergich publish')
 end
