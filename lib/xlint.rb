@@ -27,13 +27,13 @@ class Xlint
     end
 
     def save_draft
-      unless @comments.empty?
-        raise 'gergich comment command failed!' unless system("gergich comment #{Shellwords.escape(@comments.to_json)}")
-      end
+      return if @comments.empty?
+      raise 'gergich comment command failed!' unless system("gergich comment #{Shellwords.escape(@comments.to_json)}")
     end
 
     def publish_draft
-      (raise 'gergich publish command failed!' unless system('gergich publish')) unless @comments.empty?
+      return if @comments.empty?
+      raise 'gergich publish command failed!' unless system('gergich publish')
     end
 
     def parse_git(diff)
