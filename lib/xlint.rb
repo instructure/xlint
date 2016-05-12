@@ -6,6 +6,36 @@ require 'shellwords'
 
 class Xlint
   class << self
+    def check_args
+      # reads git diff from file, file name in ARGV[0]
+      raise ArgumentError, 'usage: xlint path/to/some.diff' unless ARGV.size == 1
+    end
+
+    def check_env
+      raise 'ENV[GERGICH_KEY] not defined' unless ENV['GERGICH_KEY']
+      raise 'ENV[GERRIT_PROJECT] not defined' unless ENV['GERRIT_PROJECT']
+    end
+
+    def build_draft
+      @comments = []
+      diff = Xlint.parse_git(File.read(ARGV[0]))
+      diff.files.each do |file|
+        patch = diff.find_patch_by_file(file)
+        changes = Xlint.patch_body_changes(patch.body, file)
+        @comments.concat(Xlint.find_offenses(changes))
+      end
+    end
+
+    def save_draft
+      unless @comments.empty?
+        raise 'gergich comment command failed!' unless system("gergich comment #{Shellwords.escape(@comments.to_json)}")
+      end
+    end
+
+    def publish_draft
+      (raise 'gergich publish command failed!' unless system('gergich publish')) unless @comments.empty?
+    end
+
     def parse_git(diff)
       GitDiffParser::Patches.parse(diff)
     end

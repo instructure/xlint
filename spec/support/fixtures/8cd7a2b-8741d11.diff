@@ -1,0 +1,25 @@
+diff --git a/ObjectiveC.gcda b/ObjectiveC.gcda
+new file mode 100644
+index 0000000..156bd06
+Binary files /dev/null and b/ObjectiveC.gcda differ
+diff --git a/APP.xcodeproj/xcshareddata/xcschemes/APP.xcscheme b/APP.xcodeproj/xcshareddata/xcschemes/APP.xcscheme
+index e7302f1..04c7721 100644
+--- a/APP.xcodeproj/xcshareddata/xcschemes/APP.xcscheme
++++ b/APP.xcodeproj/xcshareddata/xcschemes/APP.xcscheme
+@@ -42,6 +42,16 @@
+             skipped = "NO">
+             <BuildableReference
+                BuildableIdentifier = "primary"
++               BlueprintIdentifier = "496713F21981AA9E00E38B92"
++               BuildableName = "APPTests.xctest"
++               BlueprintName = "APPTests"
++               ReferencedContainer = "container:APP.xcodeproj">
++            </BuildableReference>
++         </TestableReference>
++         <TestableReference
++            skipped = "NO">
++            <BuildableReference
++               BuildableIdentifier = "primary"
+                BlueprintIdentifier = "F9A4010D1C10DA9D008CA5C7"
+                BuildableName = "APPUITests.xctest"
+                BlueprintName = "APPUITests"
