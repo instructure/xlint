@@ -1,10 +1,10 @@
 # Xlint
 
 [![Gem Version](https://badge.fury.io/rb/xlint.svg)](https://rubygems.org/gems/xlint)
-[![Build Status](https://travis-ci.org/mobile-qa/xlint.svg?branch=master)](https://travis-ci.org/mobile-qa/xlint)
-[![Code Climate](https://codeclimate.com/github/mobile-qa/xlint/badges/gpa.svg)](https://codeclimate.com/github/mobile-qa/xlint)
-[![Coverage Status](https://coveralls.io/repos/github/mobile-qa/xlint/badge.svg?branch=master)](https://coveralls.io/github/mobile-qa/xlint?branch=master)
-[![Dependency Status](https://gemnasium.com/badges/github.com/mobile-qa/xlint.svg)](https://gemnasium.com/github.com/mobile-qa/xlint)
+[![Build Status](https://travis-ci.org/instructure/xlint.svg?branch=master)](https://travis-ci.org/instructure/xlint)
+[![Code Climate](https://codeclimate.com/github/instructure/xlint/badges/gpa.svg)](https://codeclimate.com/github/instructure/xlint)
+[![Coverage Status](https://coveralls.io/repos/github/instructure/xlint/badge.svg?branch=master)](https://coveralls.io/github/instructure/xlint?branch=master)
+[![Dependency Status](https://gemnasium.com/badges/github.com/instructure/xlint.svg)](https://gemnasium.com/github.com/instructure/xlint)
 
 Xlint is command-line tool for linting XCode project files and posting
 comments on a [Gerrit](https://www.gerritcodereview.com/) review from a
