@@ -7,11 +7,18 @@ require 'gergich'
 
 class Xlint
   class << self
-    attr_accessor :comments
+    attr_accessor :diff_file, :comments
+
+    def clear
+      @diff_file = nil
+      @comments = []
+    end
 
     def check_args
       # reads git diff from file, file name in ARGV[0]
       raise ArgumentError, 'usage: xlint path/to/some.diff' unless ARGV.size == 1
+      @diff_file = ARGV.first
+      raise "File does not exist: #{diff_file}" unless File.exist?(diff_file)
     end
 
     def check_env
@@ -21,7 +28,7 @@ class Xlint
 
     def build_draft
       @comments = []
-      diff = Xlint.parse_git(File.read(ARGV[0]))
+      diff = Xlint.parse_git(File.read(diff_file))
       diff.files.each do |file|
         patch = diff.find_patch_by_file(file)
         changes = Xlint.patch_body_changes(patch.body, file)
@@ -30,7 +37,7 @@ class Xlint
     end
 
     def save_draft
-      return if @comments.empty?
+      return if comments.empty?
       draft = Gergich::Draft.new
       @comments.each do |comment|
         draft.add_comment(comment[:path], comment[:position], comment[:message], comment[:severity])
@@ -38,8 +45,16 @@ class Xlint
     end
 
     def publish_draft
-      return if @comments.empty?
+      return if comments.empty?
       Gergich::Review.new.publish!
+    end
+
+    def publish
+      check_args
+      check_env
+      build_draft
+      save_draft
+      publish_draft
     end
 
     def parse_git(diff)

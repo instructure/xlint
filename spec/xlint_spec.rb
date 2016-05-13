@@ -1,6 +1,8 @@
 require_relative 'spec_helper'
 
 describe Xlint do
+  let(:dirty_patch) { 'spec/support/fixtures/7bd5b4c-7713b17.diff' }
+  let(:clean_patch) { 'spec/support/fixtures/8cd7a2b-8741d11.diff' }
   let(:d7bd5b4c) { File.read('spec/support/fixtures/7bd5b4c-7713b17.diff') }
   let(:d8cd7a2b) { File.read('spec/support/fixtures/8cd7a2b-8741d11.diff') }
   let(:file0) { 'APP.xcodeproj/project.pbxproj' }
@@ -15,11 +17,7 @@ describe Xlint do
   before(:each) do
     ARGV.clear
     ENV.clear
-  end
-
-  after(:each) do
-    ARGV.clear
-    ENV.clear
+    Xlint.clear
   end
 
   describe 'argument and env checks' do
@@ -31,8 +29,13 @@ describe Xlint do
       expect { Xlint.check_args }.to raise_error(ArgumentError, arg_error)
     end
 
-    it 'does not raise argument error when ARGV is set' do
+    it 'raises error when file does not exist' do
       ARGV << 'someArgument'
+      expect { Xlint.check_args }.to raise_error(RuntimeError)
+    end
+
+    it 'does not raise error when file exists' do
+      ARGV << dirty_patch
       expect { Xlint.check_args }.to_not raise_error
     end
 
@@ -53,23 +56,20 @@ describe Xlint do
   end
 
   describe 'build_draft' do
-    let(:dirty_patch) { 'spec/support/fixtures/7bd5b4c-7713b17.diff' }
-    let(:clean_patch) { 'spec/support/fixtures/8cd7a2b-8741d11.diff' }
-
     it 'has empty comments when diff is clean' do
-      ARGV << clean_patch
+      Xlint.diff_file = clean_patch
       Xlint.build_draft
       expect(Xlint.comments.length).to eq 0
     end
 
     it 'has comments when diff is dirty' do
-      ARGV << dirty_patch
+      Xlint.diff_file = dirty_patch
       Xlint.build_draft
       expect(Xlint.comments.length).to be > 0
     end
 
     it 'has well formed comments' do
-      ARGV << dirty_patch
+      Xlint.diff_file = dirty_patch
       Xlint.build_draft
       expect(Xlint.comments.length).to be > 0
       expect(Xlint.comments[0][:path]).to eq file0
@@ -99,7 +99,6 @@ describe Xlint do
 
     describe 'publish_draft' do
       it 'does not raise error if comments are empty' do
-        Xlint.comments = []
         expect { Xlint.save_draft }.to_not raise_error
       end
 

@@ -2,8 +2,4 @@
 
 require_relative '../lib/xlint'
 
-Xlint.check_args
-Xlint.check_env
-Xlint.build_draft
-Xlint.save_draft
-Xlint.publish_draft
+Xlint.publish
