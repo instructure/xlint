@@ -1,11 +1,118 @@
 require_relative 'spec_helper'
 
-describe 'Xlint' do
+describe Xlint do
+  let(:dirty_patch) { 'spec/support/fixtures/7bd5b4c-7713b17.diff' }
+  let(:clean_patch) { 'spec/support/fixtures/8cd7a2b-8741d11.diff' }
   let(:d7bd5b4c) { File.read('spec/support/fixtures/7bd5b4c-7713b17.diff') }
+  let(:d8cd7a2b) { File.read('spec/support/fixtures/8cd7a2b-8741d11.diff') }
   let(:file0) { 'APP.xcodeproj/project.pbxproj' }
   let(:file1) { 'APP.xcodeproj/xcshareddata/xcschemes/APP.xcscheme' }
   let(:body0) { File.read('spec/support/fixtures/body0.diff') }
   let(:body1) { File.read('spec/support/fixtures/body1.diff') }
+  let(:line_number0) { 3194 }
+  let(:line_number1) { 3247 }
+  let(:message) { 'Deployment target changes should be approved by the team lead.' }
+  let(:severity) { 'error' }
+
+  before(:each) do
+    ARGV.clear
+    ENV.clear
+    Xlint.clear
+  end
+
+  describe 'argument and env checks' do
+    let(:arg_error) { 'usage: xlint path/to/some.diff' }
+    let(:key_error) { 'ENV[GERGICH_KEY] not defined' }
+    let(:project_error) { 'ENV[GERRIT_PROJECT] not defined' }
+
+    it 'raises argument error when ARGV is empty' do
+      expect { Xlint.check_args }.to raise_error(ArgumentError, arg_error)
+    end
+
+    it 'raises error when file does not exist' do
+      ARGV << 'someArgument'
+      expect { Xlint.check_args }.to raise_error(RuntimeError)
+    end
+
+    it 'does not raise error when file exists' do
+      ARGV << dirty_patch
+      expect { Xlint.check_args }.to_not raise_error
+    end
+
+    it 'raises runtime error when gergich_key not set' do
+      expect { Xlint.check_env }.to raise_error(RuntimeError, key_error)
+    end
+
+    it 'raises runtime error when gerrit_project not set' do
+      ENV['GERGICH_KEY'] = 'someKey'
+      expect { Xlint.check_env }.to raise_error(RuntimeError, project_error)
+    end
+
+    it 'does not raise error when ENV variables set' do
+      ENV['GERGICH_KEY'] = 'someKey'
+      ENV['GERRIT_PROJECT'] = 'someProject'
+      expect { Xlint.check_env }.to_not raise_error
+    end
+  end
+
+  describe 'build_draft' do
+    it 'has empty comments when diff is clean' do
+      Xlint.diff_file = clean_patch
+      Xlint.build_draft
+      expect(Xlint.comments.length).to eq 0
+    end
+
+    it 'has comments when diff is dirty' do
+      Xlint.diff_file = dirty_patch
+      Xlint.build_draft
+      expect(Xlint.comments.length).to be > 0
+    end
+
+    it 'has well formed comments' do
+      Xlint.diff_file = dirty_patch
+      Xlint.build_draft
+      expect(Xlint.comments.length).to be > 0
+      expect(Xlint.comments[0][:path]).to eq file0
+      expect(Xlint.comments[0][:position]).to eq line_number0
+      expect(Xlint.comments[0][:message]).to eq message
+      expect(Xlint.comments[0][:severity]).to eq severity
+    end
+  end
+
+  context 'gergich commands' do
+    let(:bad_comments) { { someKey: 'someValue' } }
+    let(:good_comments) { { path: 'somePath', position: 1234, message: 'someMessage', severity: 'error' } }
+    let(:comment_error) { 'gergich comment command failed!' }
+    let(:publish_error) { 'gergich publish command failed!' }
+
+    describe 'save_draft' do
+      it 'does not raise error if comments are empty' do
+        expect { Xlint.save_draft }.to_not raise_error
+      end
+
+      it 'raises error when comments are malformed' do
+        Xlint.comments = bad_comments
+        expect { Xlint.save_draft }.to raise_error(TypeError)
+      end
+    end
+
+    describe 'publish_draft' do
+      it 'does not raise error if comments are empty' do
+        expect { Xlint.save_draft }.to_not raise_error
+      end
+
+      it 'raises error when gerrit_base_url not set' do
+        Xlint.comments = good_comments
+        expect { Xlint.publish_draft }.to raise_error(GergichError)
+      end
+
+      it 'raises error when gerrit_host not set' do
+        ENV['GERRIT_BASE_URL'] = 'someBase'
+        Xlint.comments = good_comments
+        expect { Xlint.publish_draft }.to raise_error(KeyError)
+      end
+    end
+  end
 
   describe 'parse_git' do
     let(:empty_patch) { File.read('spec/support/fixtures/empty_patch.diff') }
@@ -38,8 +145,6 @@ describe 'Xlint' do
     let(:header1) { File.read('spec/support/fixtures/header1.diff') }
     let(:start0) { 3191 }
     let(:start1) { 3244 }
-    let(:line_number0) { 3194 }
-    let(:line_number1) { 3247 }
     let(:modified) { /(^([+]|[-]))/ }
 
     it 'returns starting line number' do
@@ -60,12 +165,6 @@ describe 'Xlint' do
   end
 
   describe 'deployment target changes' do
-    let(:target) { /(DEPLOYMENT_TARGET =)/ }
-    let(:line_number0) { 3194 }
-    let(:line_number1) { 3247 }
-    let(:message) { 'Deployment target changes should be approved by the team lead.' }
-    let(:error) { 'error' }
-
     it 'detects changes to deployment target' do
       changes = Xlint.patch_body_changes(body0, file0)
       offenses = Xlint.find_offenses(changes)
@@ -73,11 +172,11 @@ describe 'Xlint' do
       expect(offenses[0][:path]).to eq file0
       expect(offenses[0][:position]).to eq line_number0
       expect(offenses[0][:message]).to eq message
-      expect(offenses[0][:severity]).to eq error
+      expect(offenses[0][:severity]).to eq severity
       expect(offenses[1][:path]).to eq file0
       expect(offenses[1][:position]).to eq line_number1
       expect(offenses[1][:message]).to eq message
-      expect(offenses[1][:severity]).to eq error
+      expect(offenses[1][:severity]).to eq severity
     end
   end
 end

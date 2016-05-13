@@ -2,20 +2,4 @@
 
 require_relative '../lib/xlint'
 
-# reads git diff from file, file name in ARGV[0]
-raise ArgumentError, 'usage: xlint path/to/some.diff' unless ARGV.size == 1
-raise ArgumentError, 'ENV[GERGICH_KEY] not defined' unless ENV['GERGICH_KEY']
-raise ArgumentError, 'ENV[GERRIT_PROJECT] not defined' unless ENV['GERRIT_PROJECT']
-
-comments = []
-diff = Xlint.parse_git(File.read(ARGV[0]))
-diff.files.each do |file|
-  patch = diff.find_patch_by_file(file)
-  changes = Xlint.patch_body_changes(patch.body, file)
-  comments.concat(Xlint.find_offenses(changes))
-end
-
-unless comments.empty?
-  raise 'gergich comment command failed!' unless system("gergich comment #{Shellwords.escape(comments.to_json)}")
-  raise 'gergich publish command failed!' unless system('gergich publish')
-end
+Xlint.publish
