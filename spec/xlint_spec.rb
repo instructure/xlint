@@ -59,23 +59,23 @@ describe Xlint do
     it 'has empty comments when diff is clean' do
       ARGV << clean_patch
       Xlint.build_draft
-      expect(Xlint.instance_variable_get(:@comments).length).to eq 0
+      expect(Xlint.comments.length).to eq 0
     end
 
     it 'has comments when diff is dirty' do
       ARGV << dirty_patch
       Xlint.build_draft
-      expect(Xlint.instance_variable_get(:@comments).length).to be > 0
+      expect(Xlint.comments.length).to be > 0
     end
 
     it 'has well formed comments' do
       ARGV << dirty_patch
       Xlint.build_draft
-      expect(Xlint.instance_variable_get(:@comments).length).to be > 0
-      expect(Xlint.instance_variable_get(:@comments)[0][:path]).to eq file0
-      expect(Xlint.instance_variable_get(:@comments)[0][:position]).to eq line_number0
-      expect(Xlint.instance_variable_get(:@comments)[0][:message]).to eq message
-      expect(Xlint.instance_variable_get(:@comments)[0][:severity]).to eq severity
+      expect(Xlint.comments.length).to be > 0
+      expect(Xlint.comments[0][:path]).to eq file0
+      expect(Xlint.comments[0][:position]).to eq line_number0
+      expect(Xlint.comments[0][:message]).to eq message
+      expect(Xlint.comments[0][:severity]).to eq severity
     end
   end
 
@@ -87,30 +87,30 @@ describe Xlint do
 
     describe 'save_draft' do
       it 'does not raise error if comments are empty' do
-        Xlint.instance_variable_set(:@comments, [])
+        Xlint.comments = []
         expect { Xlint.save_draft }.to_not raise_error
       end
 
       it 'raises error when comments are malformed' do
-        Xlint.instance_variable_set(:@comments, bad_comments)
+        Xlint.comments = bad_comments
         expect { Xlint.save_draft }.to raise_error(RuntimeError, comment_error)
       end
     end
 
     describe 'publish_draft' do
       it 'does not raise error if comments are empty' do
-        Xlint.instance_variable_set(:@comments, [])
+        Xlint.comments = []
         expect { Xlint.save_draft }.to_not raise_error
       end
 
       it 'raises error when gerrit_base_url not set' do
-        Xlint.instance_variable_set(:@comments, good_comments)
+        Xlint.comments = good_comments
         expect { Xlint.publish_draft }.to raise_error(RuntimeError)
       end
 
       it 'raises error when gerrit_base_url not set' do
         ENV['GERRIT_BASE_URL'] = 'someBase'
-        Xlint.instance_variable_set(:@comments, good_comments)
+        Xlint.comments = good_comments
         expect { Xlint.publish_draft }.to raise_error(RuntimeError)
       end
     end

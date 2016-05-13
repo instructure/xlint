@@ -6,6 +6,8 @@ require 'shellwords'
 
 class Xlint
   class << self
+    attr_accessor :comments
+
     def check_args
       # reads git diff from file, file name in ARGV[0]
       raise ArgumentError, 'usage: xlint path/to/some.diff' unless ARGV.size == 1
@@ -28,12 +30,14 @@ class Xlint
 
     def save_draft
       return if @comments.empty?
-      raise 'gergich comment command failed!' unless system("gergich comment #{Shellwords.escape(@comments.to_json)}")
+      success = system("gergich comment #{Shellwords.escape(@comments.to_json)}")
+      raise 'gergich comment command failed!' unless success
     end
 
     def publish_draft
       return if @comments.empty?
-      raise 'gergich publish command failed!' unless system('gergich publish')
+      success = system('gergich publish')
+      raise 'gergich publish command failed!' unless success
     end
 
     def parse_git(diff)
