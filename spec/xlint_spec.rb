@@ -93,7 +93,7 @@ describe Xlint do
 
       it 'raises error when comments are malformed' do
         Xlint.comments = bad_comments
-        expect { Xlint.save_draft }.to raise_error(RuntimeError, comment_error)
+        expect { Xlint.save_draft }.to raise_error(TypeError)
       end
     end
 
@@ -105,13 +105,13 @@ describe Xlint do
 
       it 'raises error when gerrit_base_url not set' do
         Xlint.comments = good_comments
-        expect { Xlint.publish_draft }.to raise_error(RuntimeError)
+        expect { Xlint.publish_draft }.to raise_error(GergichError)
       end
 
-      it 'raises error when gerrit_base_url not set' do
+      it 'raises error when gerrit_host not set' do
         ENV['GERRIT_BASE_URL'] = 'someBase'
         Xlint.comments = good_comments
-        expect { Xlint.publish_draft }.to raise_error(RuntimeError)
+        expect { Xlint.publish_draft }.to raise_error(KeyError)
       end
     end
   end

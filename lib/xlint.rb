@@ -3,6 +3,7 @@ require_relative 'xlint/version'
 require 'git_diff_parser'
 require 'json'
 require 'shellwords'
+require 'gergich'
 
 class Xlint
   class << self
@@ -30,14 +31,15 @@ class Xlint
 
     def save_draft
       return if @comments.empty?
-      success = system("gergich comment #{Shellwords.escape(@comments.to_json)}")
-      raise 'gergich comment command failed!' unless success
+      draft = Gergich::Draft.new
+      @comments.each do |comment|
+        draft.add_comment(comment[:path], comment[:position], comment[:message], comment[:severity])
+      end
     end
 
     def publish_draft
       return if @comments.empty?
-      success = system('gergich publish')
-      raise 'gergich publish command failed!' unless success
+      Gergich::Review.new.publish!
     end
 
     def parse_git(diff)
