@@ -3,7 +3,7 @@
 [![Gem Version](https://badge.fury.io/rb/xlint.svg)](https://rubygems.org/gems/xlint)
 [![Build Status](https://travis-ci.org/instructure/xlint.svg?branch=master)](https://travis-ci.org/instructure/xlint)
 [![Code Climate](https://codeclimate.com/github/instructure/xlint/badges/gpa.svg)](https://codeclimate.com/github/instructure/xlint)
-[![Coverage Status](https://coveralls.io/repos/github/instructure/xlint/badge.svg?branch=master)](https://coveralls.io/github/instructure/xlint?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/instructure/xlint/badge.svg?branch=HEAD)](https://coveralls.io/github/instructure/xlint?branch=HEAD)
 [![Dependency Status](https://gemnasium.com/badges/github.com/instructure/xlint.svg)](https://gemnasium.com/github.com/instructure/xlint)
 
 Xlint is command-line tool for linting XCode project files and posting
