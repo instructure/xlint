@@ -39,7 +39,7 @@ class Xlint
     def save_draft
       return if comments.empty?
       draft = Gergich::Draft.new
-      @comments.each do |comment|
+      comments.each do |comment|
         draft.add_comment(comment[:path], comment[:position], comment[:message], comment[:severity])
       end
     end
