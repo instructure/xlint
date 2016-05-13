@@ -87,7 +87,6 @@ describe Xlint do
 
     describe 'save_draft' do
       it 'does not raise error if comments are empty' do
-        Xlint.comments = []
         expect { Xlint.save_draft }.to_not raise_error
       end
 
