@@ -7,10 +7,11 @@ require 'gergich'
 
 class Xlint
   class << self
-    attr_accessor :diff_file, :comments
+    attr_accessor :diff_file, :draft, :comments
 
     def clear
       @diff_file = nil
+      @draft.reset! if draft
       @comments = []
     end
 
@@ -28,7 +29,11 @@ class Xlint
 
     def build_draft
       @comments = []
-      diff = Xlint.parse_git(File.read(diff_file))
+      # GitDiffParser::Patches.parse(cp932 text) raises ArgumentError: invalid byte sequence in UTF-8
+      # https://github.com/packsaddle/ruby-git_diff_parser/issues/91
+      diff_data = File.read(diff_file)
+      diff_data.encode!('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
+      diff = Xlint.parse_git(diff_data)
       diff.files.each do |file|
         patch = diff.find_patch_by_file(file)
         changes = Xlint.patch_body_changes(patch.body, file)
@@ -37,15 +42,21 @@ class Xlint
     end
 
     def save_draft
-      return if comments.empty?
-      draft = Gergich::Draft.new
+      @draft = Gergich::Draft.new
       comments.each do |comment|
         draft.add_comment(comment[:path], comment[:position], comment[:message], comment[:severity])
       end
     end
 
+    def build_label
+      return unless ENV['GERGICH_REVIEW_LABEL']
+      score = comments.empty? ? 1 : -1
+      message = comments.empty? ? 'Xlint didn\'t find anything to complain about' : 'Xlint is worried about your commit'
+      draft.add_message(message)
+      draft.add_label(ENV['GERGICH_REVIEW_LABEL'], score)
+    end
+
     def publish_draft
-      return if comments.empty?
       Gergich::Review.new.publish!
     end
 
@@ -54,6 +65,7 @@ class Xlint
       check_env
       build_draft
       save_draft
+      build_label
       publish_draft
     end
 
@@ -65,7 +77,7 @@ class Xlint
       result = []
       line_number = 0
       body.split("\n").each do |line|
-        if line.start_with?('@@')
+        if valid_git_header?(line)
           line_number = starting_line_number(line)
           next
         end
@@ -106,6 +118,10 @@ class Xlint
         offenses.push(offense)
       end
       offenses
+    end
+
+    def valid_git_header?(line)
+      line =~ /^(@{2})\s([-]{1}[0-9]*(,[0-9]*)?)\s([+][0-9]*(,[0-9]*)?)\s(@{2})$/
     end
   end
 end
