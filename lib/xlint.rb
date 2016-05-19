@@ -32,7 +32,7 @@ class Xlint
       # GitDiffParser::Patches.parse(cp932 text) raises ArgumentError: invalid byte sequence in UTF-8
       # https://github.com/packsaddle/ruby-git_diff_parser/issues/91
       diff_data = File.read(diff_file)
-      diff_data = diff_data.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
+      diff_data.encode!('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
       diff = Xlint.parse_git(diff_data)
       diff.files.each do |file|
         patch = diff.find_patch_by_file(file)
