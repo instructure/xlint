@@ -12,7 +12,7 @@ describe Xlint do
   let(:line_number0) { 3194 }
   let(:line_number1) { 3247 }
   let(:message) { 'Deployment target changes should be approved by the team lead.' }
-  let(:severity) { 'error' }
+  let(:severity) { 'warn' }
 
   before(:each) do
     ARGV.clear
@@ -81,9 +81,13 @@ describe Xlint do
 
   context 'gergich commands' do
     let(:bad_comments) { { someKey: 'someValue' } }
-    let(:good_comments) { { path: 'somePath', position: 1234, message: 'someMessage', severity: 'error' } }
+    let(:good_comments) { { path: 'somePath', position: 1234, message: 'someMessage', severity: 'warn' } }
     let(:comment_error) { 'gergich comment command failed!' }
     let(:publish_error) { 'gergich publish command failed!' }
+    let(:draft_label) { 'Code-Review' }
+    let(:review_label) { 'Lint-Review' }
+    let(:fail_message) { 'Xlint is worried about your commit' }
+    let(:pass_message) { 'Xlint didn\'t find anything to complain about' }
 
     describe 'save_draft' do
       it 'does not raise error if comments are empty' do
@@ -91,8 +95,47 @@ describe Xlint do
       end
 
       it 'raises error when comments are malformed' do
-        Xlint.comments = bad_comments
-        expect { Xlint.save_draft }.to raise_error(TypeError)
+        Xlint.comments << bad_comments
+        expect { Xlint.save_draft }.to raise_error(GergichError)
+      end
+
+      it 'has a default code-review score of zero' do
+        Xlint.save_draft
+        expect(Xlint.draft.labels[draft_label]).to be 0
+      end
+
+      it 'has a failure code-review score' do
+        Xlint.comments << good_comments
+        Xlint.save_draft
+        expect(Xlint.draft.labels[draft_label]).to be(-1)
+      end
+    end
+
+    describe 'build_label' do
+      it 'adds labels when gergich_review_label is set' do
+        ENV['GERGICH_REVIEW_LABEL'] = review_label
+        Xlint.save_draft
+        Xlint.build_label
+        expect(Xlint.draft.labels[review_label]).to be_truthy
+      end
+
+      it 'adds failure label' do
+        ENV['GERGICH_REVIEW_LABEL'] = review_label
+        Xlint.comments << good_comments
+        Xlint.save_draft
+        Xlint.build_label
+        expect(Xlint.draft.messages.length).to be 1
+        expect(Xlint.draft.messages.first).to eq fail_message
+        expect(Xlint.draft.labels[review_label]).to be(-1)
+      end
+
+      it 'add passing label' do
+        ENV['GERGICH_REVIEW_LABEL'] = review_label
+        Xlint.save_draft
+        Xlint.build_label
+        expect(Xlint.draft.messages.length).to be 1
+        expect(Xlint.draft.messages.first).to eq pass_message
+        expect(Xlint.draft.labels[review_label]).to be 1
       end
     end
 
@@ -102,13 +145,13 @@ describe Xlint do
       end
 
       it 'raises error when gerrit_base_url not set' do
-        Xlint.comments = good_comments
+        Xlint.comments << good_comments
         expect { Xlint.publish_draft }.to raise_error(GergichError)
       end
 
       it 'raises error when gerrit_host not set' do
         ENV['GERRIT_BASE_URL'] = 'someBase'
-        Xlint.comments = good_comments
+        Xlint.comments << good_comments
         expect { Xlint.publish_draft }.to raise_error(KeyError)
       end
     end
