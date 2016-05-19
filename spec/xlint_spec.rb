@@ -6,7 +6,6 @@ describe Xlint do
   let(:d7bd5b4c) { File.read('spec/support/fixtures/7bd5b4c-7713b17.diff') }
   let(:d8cd7a2b) { File.read('spec/support/fixtures/8cd7a2b-8741d11.diff') }
   let(:pdf_diff) { 'spec/support/fixtures/pdf.diff' }
-  # let(:pdf_diff) { '../bigchanges.diff' }
   let(:file0) { 'APP.xcodeproj/project.pbxproj' }
   let(:file1) { 'APP.xcodeproj/xcshareddata/xcschemes/APP.xcscheme' }
   let(:body0) { File.read('spec/support/fixtures/body0.diff') }
