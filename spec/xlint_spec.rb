@@ -5,6 +5,8 @@ describe Xlint do
   let(:clean_patch) { 'spec/support/fixtures/8cd7a2b-8741d11.diff' }
   let(:d7bd5b4c) { File.read('spec/support/fixtures/7bd5b4c-7713b17.diff') }
   let(:d8cd7a2b) { File.read('spec/support/fixtures/8cd7a2b-8741d11.diff') }
+  let(:pdf_diff) { 'spec/support/fixtures/pdf.diff' }
+  # let(:pdf_diff) { '../bigchanges.diff' }
   let(:file0) { 'APP.xcodeproj/project.pbxproj' }
   let(:file1) { 'APP.xcodeproj/xcshareddata/xcschemes/APP.xcscheme' }
   let(:body0) { File.read('spec/support/fixtures/body0.diff') }
@@ -12,7 +14,7 @@ describe Xlint do
   let(:line_number0) { 3194 }
   let(:line_number1) { 3247 }
   let(:message) { 'Deployment target changes should be approved by the team lead.' }
-  let(:severity) { 'warn' }
+  let(:severity) { 'error' }
 
   before(:each) do
     ARGV.clear
@@ -77,11 +79,16 @@ describe Xlint do
       expect(Xlint.comments[0][:message]).to eq message
       expect(Xlint.comments[0][:severity]).to eq severity
     end
+
+    it 'handles invalid byte sequences' do
+      Xlint.diff_file = pdf_diff
+      expect { Xlint.build_draft }.to_not raise_error
+    end
   end
 
   context 'gergich commands' do
     let(:bad_comments) { { someKey: 'someValue' } }
-    let(:good_comments) { { path: 'somePath', position: 1234, message: 'someMessage', severity: 'warn' } }
+    let(:good_comments) { { path: 'somePath', position: 1234, message: 'someMessage', severity: 'error' } }
     let(:comment_error) { 'gergich comment command failed!' }
     let(:publish_error) { 'gergich publish command failed!' }
     let(:draft_label) { 'Code-Review' }
@@ -107,7 +114,7 @@ describe Xlint do
       it 'has a failure code-review score' do
         Xlint.comments << good_comments
         Xlint.save_draft
-        expect(Xlint.draft.labels[draft_label]).to be(-1)
+        expect(Xlint.draft.labels[draft_label]).to be(-2)
       end
     end
 
@@ -220,6 +227,56 @@ describe Xlint do
       expect(offenses[1][:position]).to eq line_number1
       expect(offenses[1][:message]).to eq message
       expect(offenses[1][:severity]).to eq severity
+    end
+  end
+
+  describe 'valid git header' do
+    it 'returns thruthy when header has only one change' do
+      expect(Xlint.valid_git_header?('@@ -0,0 +1 @@')).to be_truthy
+    end
+
+    it 'returns truthy when header has multiple adds and removals' do
+      expect(Xlint.valid_git_header?('@@ -1,37 +1,63 @@')).to be_truthy
+    end
+
+    it 'returns truthy when header has only one removal and multiple adds' do
+      expect(Xlint.valid_git_header?('@@ -1 +1,63 @@')).to be_truthy
+    end
+
+    it 'returns truthy when header has multiple removals and only one add' do
+      expect(Xlint.valid_git_header?('@@ -1,37 +1 @@')).to be_truthy
+    end
+
+    it 'returns falsey when header is missing whitespace before removals' do
+      expect(Xlint.valid_git_header?('@@-1 +1 @@')).to be_falsey
+    end
+
+    it 'returns falsey when header is missing whitespace after adds' do
+      expect(Xlint.valid_git_header?('@@ -1 +1@@')).to be_falsey
+    end
+
+    it 'returns falsey when header is missing whitespace between removal and adds' do
+      expect(Xlint.valid_git_header?('@@ -1+1 @@')).to be_falsey
+    end
+
+    it 'returns falsey when header is missing minus sign' do
+      expect(Xlint.valid_git_header?('@@ 1 +1 @@')).to be_falsey
+    end
+
+    it 'returns falsey when header is missing plus sign' do
+      expect(Xlint.valid_git_header?('@@ -1 1 @@')).to be_falsey
+    end
+
+    it 'returns falsey when header is missing signs' do
+      expect(Xlint.valid_git_header?('@@ 1 1 @@')).to be_falsey
+    end
+
+    it 'returns falsey when header is missing leading @@ symbols' do
+      expect(Xlint.valid_git_header?('-0,0 +1 @@')).to be_falsey
+    end
+
+    it 'returns falsey when header is missing trailing @@ symbols' do
+      expect(Xlint.valid_git_header?('@@ -0,0 +1 ')).to be_falsey
     end
   end
 end

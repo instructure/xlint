@@ -31,7 +31,9 @@ class Xlint
       @comments = []
       # GitDiffParser::Patches.parse(cp932 text) raises ArgumentError: invalid byte sequence in UTF-8
       # https://github.com/packsaddle/ruby-git_diff_parser/issues/91
-      diff = Xlint.parse_git(File.read(diff_file))
+      diff_data = File.read(diff_file)
+      diff_data = diff_data.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
+      diff = Xlint.parse_git(diff_data)
       diff.files.each do |file|
         patch = diff.find_patch_by_file(file)
         changes = Xlint.patch_body_changes(patch.body, file)
@@ -75,7 +77,7 @@ class Xlint
       result = []
       line_number = 0
       body.split("\n").each do |line|
-        if line.start_with?('@@')
+        if valid_git_header?(line)
           line_number = starting_line_number(line)
           next
         end
@@ -111,11 +113,15 @@ class Xlint
           path: change[:file],
           position: change[:line_number],
           message: 'Deployment target changes should be approved by the team lead.',
-          severity: 'warn'
+          severity: 'error'
         }
         offenses.push(offense)
       end
       offenses
+    end
+
+    def valid_git_header?(line)
+      line =~ /^(@{2})\s([-]{1}[0-9]*(,[0-9]*)?)\s([+][0-9]*(,[0-9]*)?)\s(@{2})$/
     end
   end
 end
