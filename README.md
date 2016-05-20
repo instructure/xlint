@@ -43,8 +43,8 @@ Note: The Jenkins version on Cloudbees does not currently work with EnvInject.
 Name: GERGICH_KEY
 Value: <access_key_for_gergich_user_on_gerrit>
 ```
-* Check "This project is parameterized" (Job Configuration > General)
 
+* Check "This project is parameterized" (Job Configuration > General)
 * Add the following String Parameters to (Job Configuration > General
 
 > GERRIT_REFSPEC
