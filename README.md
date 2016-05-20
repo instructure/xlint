@@ -18,7 +18,7 @@ in the Gerrit review.
 Xlint parses the changes in a patchset, and runs each change through
 a validator. If the validator detects any issues, a [Gergich](https://rubygems.org/gems/gergich)
 comment is created. After all the changes have been checked, Xlint
-publishes the Gergich comments to Gerrit. If the CI environment has a varible for a Gerrit review label, Xlint will also post a reply to the label.
+publishes the Gergich comments to Gerrit. If the CI environment has a variable for a Gerrit review label, Xlint will also post a reply to the label.
 
 ## Limitations
 
@@ -98,7 +98,7 @@ In the meta/config branch of your Gerrit project, you need to add "Linter Bots" 
     label-Lint-Review = -2..1 group Linter Bots
 ```
 
-* How do project labels work? Please read https://gerrit.baserock.org/Documentation/config-labels.html
+* For additional information on Gerrit project labels, [review the Gerrit documentation](https://gerrit.baserock.org/Documentation/config-labels.html)
 
 * How do I checkout, commit, and push to the meta/config branch?
     * ``` git fetch origin refs/meta/config:refs/remotes/origin/meta/config ```
