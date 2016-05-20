@@ -98,7 +98,7 @@ In the meta/config branch of your Gerrit project, you need to add "Linter Bots" 
     label-Lint-Review = -2..1 group Linter Bots
 ```
 
-* For additional information on Gerrit project labels, [review the Gerrit documentation](https://gerrit.baserock.org/Documentation/config-labels.html)
+* For additional information on Gerrit project labels, [review the Gerrit documentation](https://gerrit-review.googlesource.com/Documentation/config-labels.html)
 
 * How do I checkout, commit, and push to the meta/config branch?
     * ``` git fetch origin refs/meta/config:refs/remotes/origin/meta/config ```
