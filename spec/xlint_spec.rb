@@ -10,8 +10,11 @@ describe Xlint do
   let(:file1) { 'APP.xcodeproj/xcshareddata/xcschemes/APP.xcscheme' }
   let(:body0) { File.read('spec/support/fixtures/body0.diff') }
   let(:body1) { File.read('spec/support/fixtures/body1.diff') }
+  let(:body2) { File.read('spec/support/fixtures/body2.diff') }
   let(:line_number0) { 3194 }
   let(:line_number1) { 3247 }
+  let(:line_number2) { 5651 }
+  let(:line_number3) { 5664 }
   let(:message) { 'Deployment target changes should be approved by the team lead.' }
   let(:severity) { 'error' }
 
@@ -214,18 +217,36 @@ describe Xlint do
   end
 
   describe 'deployment target changes' do
-    it 'detects changes to deployment target' do
-      changes = Xlint.patch_body_changes(body0, file0)
-      offenses = Xlint.find_offenses(changes)
-      expect(offenses.size).to eq 2
-      expect(offenses[0][:path]).to eq file0
-      expect(offenses[0][:position]).to eq line_number0
-      expect(offenses[0][:message]).to eq message
-      expect(offenses[0][:severity]).to eq severity
-      expect(offenses[1][:path]).to eq file0
-      expect(offenses[1][:position]).to eq line_number1
-      expect(offenses[1][:message]).to eq message
-      expect(offenses[1][:severity]).to eq severity
+    context 'when git header line numbers match' do
+      it 'detects deployment target changes' do
+        changes = Xlint.patch_body_changes(body0, file0)
+        offenses = Xlint.find_offenses(changes)
+        expect(offenses.size).to eq 2
+        expect(offenses[0][:path]).to eq file0
+        expect(offenses[0][:position]).to eq line_number0
+        expect(offenses[0][:message]).to eq message
+        expect(offenses[0][:severity]).to eq severity
+        expect(offenses[1][:path]).to eq file0
+        expect(offenses[1][:position]).to eq line_number1
+        expect(offenses[1][:message]).to eq message
+        expect(offenses[1][:severity]).to eq severity
+      end
+    end
+
+    context 'when git header line numbers do not match' do
+      it 'detects deployment target changes' do
+        changes = Xlint.patch_body_changes(body2, file0)
+        offenses = Xlint.find_offenses(changes)
+        expect(offenses.size).to eq 2
+        expect(offenses[0][:path]).to eq file0
+        expect(offenses[0][:position]).to eq line_number2
+        expect(offenses[0][:message]).to eq message
+        expect(offenses[0][:severity]).to eq severity
+        expect(offenses[1][:path]).to eq file0
+        expect(offenses[1][:position]).to eq line_number3
+        expect(offenses[1][:message]).to eq message
+        expect(offenses[1][:severity]).to eq severity
+      end
     end
   end
 

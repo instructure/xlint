@@ -90,7 +90,7 @@ class Xlint
 
     # expects git header in the form of: @@ -215,13 +215,7 @@
     def starting_line_number(header)
-      str = header.split(' ')[1].split(',')[0]
+      str = header.split(' ')[2].split(',')[0]
       str.slice!('-')
       str.to_i
     end
